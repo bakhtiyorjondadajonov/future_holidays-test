@@ -60,6 +60,7 @@
               }}
             {%- elsif section.settings.video_url -%}
               <video
+                class="lazy"
                 {% if section.settings.autoplay %}
                   autoplay muted
                 {% endif %}
@@ -70,7 +71,7 @@
                 playsinline
                 poster="{{ section.settings.video_image_url }}"
               >
-                <source src="{{ section.settings.video_url }}" type="video/mp4">
+                <source data-src="{{ section.settings.video_url }}" type="video/mp4">
               </video>
             {%- else -%}
               {{ 'detailed-apparel-1' | placeholder_svg_tag: 'placeholder-svg' }}
