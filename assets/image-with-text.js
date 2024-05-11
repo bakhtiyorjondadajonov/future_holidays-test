@@ -1,5 +1,3 @@
-console.log('Bismillah');
-
 document.addEventListener('DOMContentLoaded', function () {
   const lazyVideos = [...document.querySelectorAll('video.lazy')];
 
