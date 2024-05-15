@@ -30,7 +30,11 @@
       <div class="image-with-text__grid grid grid--gapless grid--1-col grid--{% if section.settings.desktop_image_width == 'medium' %}2-col-tablet{% else %}3-col-tablet{% endif %}{% if section.settings.layout == 'text_first' %} image-with-text__grid--reverse{% endif %}">
         <div class="image-with-text__media-item image-with-text__media-item--{{ section.settings.desktop_image_width }} image-with-text__media-item--{{ section.settings.desktop_content_position }} grid__item">
           <div
-            class="image-with-text__media image-with-text__media--{{ section.settings.height }} global-media-settings{% unless remove_color_classes %} gradient color-{{ section.settings.color_scheme }}{% else %} background-transparent{% endunless %}{% if section.settings.image != blank %} media{% else %} image-with-text__media--placeholder placeholder{% endif %}{% if section.settings.image_behavior != 'none' %} animate--{{ section.settings.image_behavior }}{% endif %}"
+            class="
+              image-with-text__media image-with-text__video image-with-text__media--{{ section.settings.height }}
+
+              {% unless remove_color_classes %} gradient color-{{ section.settings.color_scheme }}{% else %} background-transparent{% endunless %}{% if section.settings.image != blank %} global-media-settings {% endif %}{% if section.settings.image != blank %} media{% elsif section.settings.video_url=="" %} image-with-text__media--placeholder placeholder{% endif %}{% if section.settings.image_behavior != 'none' %} animate--{{ section.settings.image_behavior }}{% endif %}
+            "
             {% if section.settings.height == 'adapt' and section.settings.image != blank %}
               style="padding-bottom: {{ 1 | divided_by: section.settings.image.aspect_ratio | times: 100 }}%;"
             {% endif %}
@@ -53,6 +57,48 @@
                 section.settings.image
                 | image_url: width: 1500
                 | image_tag: sizes: sizes, widths: widths, fetchpriority: fetch_priority
+              }}
+            {%- elsif section.settings.video_url -%}
+              {% comment %}
+                <video
+                  {% if section.settings.show_controls %}
+                    controls
+                  {% endif %}
+
+                  class="lazy"
+                  {% if section.settings.autoplay %}
+                    autoplay muted
+                  {% endif %}
+
+                  {% if section.settings.loop_video %}
+                    loop
+                  {% endif %}
+                  playsinline
+                  {% if section.settings.video_image_url %}
+                    poster="{{ section.settings.video_image_url }}"
+                  {% else %}
+                    poster="https://img.freepik.com/free-vector/white-blurred-background_1034-249.jpg?w=826&t=st=1715403488~exp=1715404088~hmac=53ac62aca0964d7817fabd203fbb5955fd3bda1a0b2a8a1e3655cb6a95ab7a89"
+                  {% endif %}
+                >
+                  <source data-src="{{ section.settings.video_url }}" type="video/mp4">
+                </video>
+              {% endcomment %}
+              {% assign autoplay = section.settings.autoplay | default: null %}
+              {% assign loop = section.settings.loop_video | default: null %}
+              {% assign show_controls = section.settings.show_controls | default: null %}
+              {% assign poster_path = section.settings.video_image_url
+                | default: 'https://img.freepik.com/free-vector/white-blurred-background_1034-249.jpg?w=826&t=st=1715403488~exp=1715404088~hmac=53ac62aca0964d7817fabd203fbb5955fd3bda1a0b2a8a1e3655cb6a95ab7a89'
+              %}
+              {{
+                section.settings.video_url
+                | video_tag:
+                  id: 'lazy-video',
+                  loop: loop,
+                  autoplay: autoplay,
+                  controls: show_controls,
+                  muted: true,
+                  playsinline: true,
+                  data-poster: poster_path
               }}
             {%- else -%}
               {{ 'detailed-apparel-1' | placeholder_svg_tag: 'placeholder-svg' }}
@@ -116,10 +162,31 @@
   },
   "settings": [
     {
-      "type": "image_picker",
-      "id": "image",
-      "label": "t:sections.image-with-text.settings.image.label"
+      "type": "video",
+      "id": "video_url",
+      "label": "Shopify-hosted video url link"
     },
+    {
+      "type": "url",
+      "id": "video_image_url",
+      "label": "Video Image Url"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_controls",
+      "label": "Show Controls"
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "Autoplay"
+    },
+    {
+      "type": "checkbox",
+      "id": "loop_video",
+      "label": "Loop Video"
+    },
+
     {
       "type": "select",
       "id": "height",
@@ -141,7 +208,7 @@
           "label": "t:sections.image-with-text.settings.height.options__4.label"
         }
       ],
-      "default": "adapt",
+      "default": "medium",
       "label": "t:sections.image-with-text.settings.height.label"
     },
     {
